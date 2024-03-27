@@ -47,8 +47,23 @@ CREATE TABLE Theatre (
     TheatreID INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
     Location VARCHAR(255),
-    Capacity INT,
     ContactNumber VARCHAR(20)
+);
+
+CREATE TABLE Screen (
+    ScreenID INT AUTO_INCREMENT PRIMARY KEY,
+    TheatreID INT,
+    Name VARCHAR(50),
+    Capacity INT,
+    FOREIGN KEY (TheatreID) REFERENCES Theatre(TheatreID)
+);
+
+CREATE TABLE Screen (
+    ScreenID INT AUTO_INCREMENT PRIMARY KEY,
+    TheatreID INT,
+    Name VARCHAR(50),
+    Capacity INT,
+    FOREIGN KEY (TheatreID) REFERENCES Theatre(TheatreID)
 );
 
 CREATE TABLE Movie (
@@ -63,13 +78,20 @@ CREATE TABLE Movie (
 CREATE TABLE Show (
     ShowID INT AUTO_INCREMENT PRIMARY KEY,
     MovieID INT,
-    TheatreID INT,
+    ScreenID INT,
     Date DATE,
     Time TIME,
     Price DECIMAL(6, 2),
     SeatsAvailable INT,
     FOREIGN KEY (MovieID) REFERENCES Movie(MovieID),
-    FOREIGN KEY (TheatreID) REFERENCES Theatre(TheatreID)
+    FOREIGN KEY (ScreenID) REFERENCES Screen(ScreenID)
+);
+
+CREATE TABLE User (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Email VARCHAR(255),
+    PhoneNumber VARCHAR(20)
 );
 
 CREATE TABLE Booking (
@@ -82,13 +104,6 @@ CREATE TABLE Booking (
     FOREIGN KEY (ShowID) REFERENCES Show(ShowID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
-
-CREATE TABLE User (
-    UserID INT AUTO_INCREMENT PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    Email VARCHAR(255),
-    PhoneNumber VARCHAR(20)
-);
 ```
 
 
@@ -96,20 +111,25 @@ CREATE TABLE User (
 
 ```sql
 -- Insert sample data into Theatre table
-INSERT INTO Theatre (Name, Location, Capacity, ContactNumber)
-VALUES ('PVR Cinemas', '123 ABC Road, Mumbai', 300, '95295XXXXX');
+INSERT INTO Theatre (Name, Location, ContactNumber)
+VALUES ('PVR Cinemas', '123 ABC Road, Mumbai', '95295XXXXX');
+
+-- Insert sample data into Screen table
+INSERT INTO Screen (TheatreID, Name, Capacity)
+VALUES (1, A1, 100), (1, A2, 100), (1, A3, 100);
 
 -- Insert sample data into Movie table
 INSERT INTO Movie (Title, Genre, Language, Duration, Rating)
 VALUES ('Baahubali: The Beginning', 'Action, Drama', 'Hindi', 159, 8.1);
 
 -- Insert sample data into Show table
-INSERT INTO Show (MovieID, TheatreID, Date, Time, Price, SeatsAvailable)
-VALUES (1, 1, '2024-02-25', '15:00:00', 10.00, 200);
+INSERT INTO Show (MovieID, TheatreID, ScreenID, Date, Time, Price, SeatsAvailable)
+VALUES (1, 1, 1, '2024-02-25', '15:00:00', 10.00, 200);
 
 -- Insert sample data into User table
 INSERT INTO User (Name, Email, PhoneNumber)
 VALUES ('Jayant C', 'jayant.c@example.com', '95295XXXXX');
+
 ```
 
 ## SQL Queries:
@@ -117,16 +137,30 @@ VALUES ('Jayant C', 'jayant.c@example.com', '95295XXXXX');
 ### P1: Create Tables
 
 ```sql
--- Create Theatre Table
 CREATE TABLE Theatre (
     TheatreID INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
     Location VARCHAR(255),
-    Capacity INT,
     ContactNumber VARCHAR(20)
 );
 
--- Create Movie Table
+CREATE TABLE Screen (
+    ScreenID INT AUTO_INCREMENT PRIMARY KEY,
+    TheatreID INT,
+    Name VARCHAR(50),
+    Capacity INT,
+    FOREIGN KEY (TheatreID) REFERENCES Theatre(TheatreID)
+);
+
+
+CREATE TABLE Screen (
+    ScreenID INT AUTO_INCREMENT PRIMARY KEY,
+    TheatreID INT,
+    Name VARCHAR(50),
+    Capacity INT,
+    FOREIGN KEY (TheatreID) REFERENCES Theatre(TheatreID)
+);
+
 CREATE TABLE Movie (
     MovieID INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(255) NOT NULL,
@@ -136,20 +170,18 @@ CREATE TABLE Movie (
     Rating DECIMAL(3, 1)
 );
 
--- Create Show Table
 CREATE TABLE Show (
     ShowID INT AUTO_INCREMENT PRIMARY KEY,
     MovieID INT,
-    TheatreID INT,
+    ScreenID INT,
     Date DATE,
     Time TIME,
     Price DECIMAL(6, 2),
     SeatsAvailable INT,
     FOREIGN KEY (MovieID) REFERENCES Movie(MovieID),
-    FOREIGN KEY (TheatreID) REFERENCES Theatre(TheatreID)
+    FOREIGN KEY (ScreenID) REFERENCES Screen(ScreenID)
 );
 
--- Create User Table
 CREATE TABLE User (
     UserID INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
@@ -157,7 +189,6 @@ CREATE TABLE User (
     PhoneNumber VARCHAR(20)
 );
 
--- Create Booking Table
 CREATE TABLE Booking (
     BookingID INT AUTO_INCREMENT PRIMARY KEY,
     ShowID INT,
@@ -173,8 +204,9 @@ CREATE TABLE Booking (
 ### P2: Query for Shows on a Given Date at a Given Theatre
 
 ```sql
-SELECT s.ShowID, m.Title, s.Date, s.Time
+SELECT s.ShowID, m.Title, s.Date, s.Time, sc.Number AS ScreenNumber
 FROM Show s
 JOIN Movie m ON s.MovieID = m.MovieID
+JOIN Screen sc ON s.ScreenID = sc.ScreenID
 WHERE s.Date = '2024-02-25' AND s.TheatreID = 1;
 ```
