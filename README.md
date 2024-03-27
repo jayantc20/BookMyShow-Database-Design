@@ -204,7 +204,7 @@ CREATE TABLE Booking (
 ### P2: Query for Shows on a Given Date at a Given Theatre
 
 ```sql
-SELECT s.ShowID, m.Title, s.Date, s.Time, sc.Number AS ScreenNumber
+SELECT s.ShowID, m.Title, s.Date, s.Time, sc.Name AS ScreenName
 FROM Show s
 JOIN Movie m ON s.MovieID = m.MovieID
 JOIN Screen sc ON s.ScreenID = sc.ScreenID
